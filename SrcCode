@@ -1,0 +1,74 @@
+#include<SoftwareSerial.h>
+#define ldr A0
+#define r 9
+#define g 10
+#define trigpin 5
+#define echopin 6
+int txd=7;
+int rxd=8;
+#define buzz 12
+String pin="";
+SoftwareSerial bluetooth(txd,rxd);
+void setup() {
+  // put your setup pin here, to run once:
+  pinMode(ldr,INPUT);
+  pinMode(trigpin,OUTPUT);
+  pinMode(echopin,INPUT);
+  pinMode(r,OUTPUT);
+  pinMode(g,OUTPUT);
+  pinMode(buzz,OUTPUT);
+  Serial.begin(9600);
+  bluetooth.begin(9600);
+  
+}
+
+void loop() {
+  // put your main pin here, to run repeatedly:
+  int n=analogRead(ldr);
+  Serial.println(n);
+   
+  int bright=1000;
+  if(bluetooth.available()){
+     pin=bluetooth.readString();
+  }https://nptel.ac.in/
+  if(n<bright && pin!="1011"){
+   //system activated 
+   digitalWrite(g,255);
+   analogWrite(r,0);
+   //if activated then green light
+   long dist;
+   long duration;
+   int safe=100;
+   
+   int vclose=22;
+   //measuring distance
+   digitalWrite(trigpin,0);
+   delayMicroseconds(2);
+   digitalWrite(trigpin,1);
+   delayMicroseconds(10);
+   digitalWrite(trigpin,0);
+   duration=pulseIn(echopin,HIGH);
+   dist=0.034*duration/2.0;
+   if(dist<=safe && dist>=vclose){
+      bluetooth.println("INTRUDER APPROACHING ALERT");
+   }
+   else if(dist<vclose)
+   {
+    bluetooth.println("INTRUDER BREAK IN");
+    digitalWrite(buzz,HIGH);
+    //delay(200);
+    //digitalWrite(buzz,LOW);
+    //delay(200);
+   }
+ 
+   
+  }
+ else 
+ {
+  Serial.println("lol");
+  analogWrite(r,255);
+  analogWrite(g,0);
+  
+ }
+ delay(200);
+}
